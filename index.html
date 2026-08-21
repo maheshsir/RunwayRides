@@ -171,74 +171,80 @@
         </div>
     </div>
 
-    <script>
-        let receiptCounter = parseInt(localStorage.getItem('rr_counter')) || 1001;
+ <script>
+    let receiptCounter = parseInt(localStorage.getItem('rr_counter')) || 1001;
 
-        window.onload = function() {
-            const now = new Date();
-            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('pDateTime').value = now.toISOString().slice(0, 16);
-        };
+    window.onload = function() {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('pDateTime').value = now.toISOString().slice(0, 16);
+    };
 
-        function toggleCustomInput(selectId, customInputId) {
-            const selectElem = document.getElementById(selectId);
-            const customInput = document.getElementById(customInputId);
-            
-            if (selectElem.value === 'CUSTOM') {
-                customInput.style.display = 'block';
-                customInput.focus();
-            } else {
-                customInput.style.display = 'none';
-                customInput.value = '';
-            }
+    function toggleCustomInput(selectId, customInputId) {
+        const selectElem = document.getElementById(selectId);
+        const customInput = document.getElementById(customInputId);
+        
+        if (selectElem.value === 'CUSTOM') {
+            customInput.style.display = 'block';
+            customInput.focus();
+        } else {
+            customInput.style.display = 'none';
+            customInput.value = '';
+        }
+    }
+
+    function processReceipt() {
+        const name = document.getElementById('pName').value;
+        const fare = document.getElementById('pFare').value;
+        const dateTimeVal = document.getElementById('pDateTime').value;
+        
+        if(!name || !fare) {
+            alert("Please fill Name and Fare");
+            return;
         }
 
-        function processReceipt() {
-            const name = document.getElementById('pName').value;
-            const fare = document.getElementById('pFare').value;
-            const dateTimeVal = document.getElementById('pDateTime').value;
-            
-            if(!name || !fare) {
-                alert("Please fill Name and Fare");
-                return;
-            }
+        const fromSelect = document.getElementById('pFrom').value;
+        const fromCustom = document.getElementById('pFromCustom').value;
+        const finalFrom = (fromSelect === 'CUSTOM') ? (fromCustom || "Custom Location") : fromSelect;
 
-            const fromSelect = document.getElementById('pFrom').value;
-            const fromCustom = document.getElementById('pFromCustom').value;
-            const finalFrom = (fromSelect === 'CUSTOM') ? (fromCustom || "Custom Location") : fromSelect;
+        const toSelect = document.getElementById('pTo').value;
+        const toCustom = document.getElementById('pToCustom').value;
+        const finalTo = (toSelect === 'CUSTOM') ? (toCustom || "Custom Location") : toSelect;
 
-            const toSelect = document.getElementById('pTo').value;
-            const toCustom = document.getElementById('pToCustom').value;
-            const finalTo = (toSelect === 'CUSTOM') ? (toCustom || "Custom Location") : toSelect;
-
-            let formattedDateTime = new Date().toLocaleString();
-            if(dateTimeVal) {
-                const dt = new Date(dateTimeVal);
-                formattedDateTime = dt.toLocaleDateString() + ", " + dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            }
-
-            document.getElementById('outName').innerText = name;
-            document.getElementById('outFrom').innerText = finalFrom || "-";
-            document.getElementById('outTo').innerText = finalTo || "-";
-            document.getElementById('outFare').innerText = "₹ " + fare;
-            document.getElementById('outDate').innerText = formattedDateTime;
-            document.getElementById('outNo').innerText = "#" + receiptCounter;
-
-            document.getElementById('receipt-preview-wrapper').style.display = 'block';
-            document.getElementById('actionBtnGroup').style.display = 'flex';
-
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        let formattedDateTime = new Date().toLocaleString();
+        if(dateTimeVal) {
+            const dt = new Date(dateTimeVal);
+            formattedDateTime = dt.toLocaleDateString() + ", " + dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
-        function shareReceipt() {
-            const receiptNo = document.getElementById('outNo').innerText;
-            const dateVal = document.getElementById('outDate').innerText;
-            const passenger = document.getElementById('outName').innerText;
-            const fromLoc = document.getElementById('outFrom').innerText;
-            const toLoc = document.getElementById('outTo').innerText;
-            const totalFare = document.getElementById('outFare').innerText;
+        // Set values on receipt
+        document.getElementById('outName').innerText = name;
+        document.getElementById('outFrom').innerText = finalFrom || "-";
+        document.getElementById('outTo').innerText = finalTo || "-";
+        document.getElementById('outFare').innerText = "₹ " + fare;
+        document.getElementById('outDate').innerText = formattedDateTime;
+        document.getElementById('outNo').innerText = "#" + receiptCounter;
 
-            const shareText = 
+        // Display receipt preview and buttons
+        document.getElementById('receipt-preview-wrapper').style.display = 'block';
+        document.getElementById('actionBtnGroup').style.display = 'flex';
+
+        // INCREMENT AND SAVE COUNTER NOW
+        receiptCounter++;
+        localStorage.setItem('rr_counter', receiptCounter);
+
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function shareReceipt() {
+        const receiptNo = document.getElementById('outNo').innerText;
+        const dateVal = document.getElementById('outDate').innerText;
+        const passenger = document.getElementById('outName').innerText;
+        const fromLoc = document.getElementById('outFrom').innerText;
+        const toLoc = document.getElementById('outTo').innerText;
+        const totalFare = document.getElementById('outFare').innerText;
+
+        const shareText = 
 `🚖 *RUNWAY RIDES - TAXI RECEIPT*
 ----------------------------------
 *Receipt No:* ${receiptNo}
@@ -253,23 +259,20 @@ Shamshabad, Hyderabad - 501218
 Contact: +91 8186016096
 Thank you for riding with us!`;
 
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Taxi Receipt - Runway Rides',
-                    text: shareText
-                }).catch((error) => console.log('Sharing canceled', error));
-            } else {
-                // Fallback for browsers that don't support Web Share API
-                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-                window.open(whatsappUrl, '_blank');
-            }
+        if (navigator.share) {
+            navigator.share({
+                title: 'Taxi Receipt - Runway Rides',
+                text: shareText
+            }).catch((error) => console.log('Sharing canceled', error));
+        } else {
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(whatsappUrl, '_blank');
         }
+    }
 
-        function printReceipt() {
-            window.print();
-            receiptCounter++;
-            localStorage.setItem('rr_counter', receiptCounter);
-        }
-    </script>
+    function printReceipt() {
+        window.print();
+    }
+</script>
 </body>
 </html>
