@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Runway Rides App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #1a3a6d; }
+        body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 20px; }
+        
+        /* Mobile Header */
+        .app-header { background: var(--primary); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .app-header img { width: 50px; border-radius: 50%; vertical-align: middle; }
+        
+        .container { padding: 15px; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
+        h3 { margin-top: 0; color: var(--primary); font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; outline: none; background: white; }
+        input:focus, select:focus { border-color: var(--primary); }
+
+        .custom-input { display: none; margin-top: 8px; }
+
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-gen { background: var(--primary); color: white; }
+        .btn-action-group { display: none; gap: 10px; margin-top: 10px; }
+        .btn-share { background: #25D366; color: white; flex: 1; }
+        .btn-download { background: #27ae60; color: white; flex: 1; }
+
+        /* Receipt View */
+        #receipt-preview-wrapper { display: none; text-align: center; margin-top: 20px; }
+        #receipt-content { background: white; padding: 20px; width: 320px; margin: 0 auto; border: 1px solid #eee; box-sizing: border-box; }
+        .r-header { text-align: center; margin-bottom: 15px; }
+        .r-header h2 { margin: 5px 0; font-size: 1.2rem; color: var(--primary); }
+        .r-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; text-align: left; }
+        .r-total { background: #f8f9fa; padding: 10px; margin-top: 15px; font-weight: bold; font-size: 1.1rem; text-align: center; border: 1px solid #ddd; }
+        .r-footer { font-size: 0.7rem; text-align: center; margin-top: 20px; color: #777; line-height: 1.4; }
+
+        /* Print formatting */
+        @media print {
+            body { background: white; padding: 0; }
+            .app-header, .card, #receipt-preview-wrapper p { display: none !important; }
+            #receipt-preview-wrapper { display: block !important; margin-top: 0; }
+            #receipt-content { border: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <img src="logo.jpeg" alt="Logo" onerror="this.style.display='none'">
+        <span style="font-weight: bold; margin-left: 10px; font-size: 1.2rem;">RUNWAY RIDES</span>
+    </div>
+
+    <div class="container">
+        <!-- Input Form -->
+        <div class="card">
+            <h3>Generate Taxi Receipt</h3>
+            <div class="input-group">
+                <label>Passenger Name</label>
+                <input type="text" id="pName" placeholder="Enter name">
+            </div>
+            
+            <div class="input-group">
+                <label>Ride Date & Time</label>
+                <input type="datetime-local" id="pDateTime">
+            </div>
+
+            <div class="input-group">
+                <label>Pickup Location / Airport</label>
+                <select id="pFrom" onchange="toggleCustomInput('pFrom', 'pFromCustom')">
+                    <option value="">-- Select Airport or Location --</option>
+                    <optgroup label="Telangana Airports">
+                        <option value="RGIA - Hyderabad (HYD)">Rajiv Gandhi Intl Airport (HYD) - Hyderabad</option>
+                        <option value="Begumpet Airport - Hyderabad">Begumpet Airport - Hyderabad</option>
+                        <option value="Warangal Airport (Mamnoor)">Warangal Airport (Mamnoor)</option>
+                    </optgroup>
+                    <optgroup label="Andhra Pradesh Airports">
+                        <option value="Visakhapatnam Intl Airport (VTZ)">Visakhapatnam Intl Airport (VTZ)</option>
+                        <option value="Vijayawada Intl Airport (VGA)">Vijayawada Intl Airport (VGA)</option>
+                        <option value="Tirupati Airport (TIR)">Tirupati Airport (TIR)</option>
+                        <option value="Rajahmundry Airport (RJA)">Rajahmundry Airport (RJA)</option>
+                        <option value="Kurnool Airport (KJB)">Kurnool Airport (Orvakal)</option>
+                        <option value="Kadapa Airport (CDP)">Kadapa Airport (CDP)</option>
+                        <option value="Bhogapuram Intl Airport">Bhogapuram Intl Airport (Greenfield)</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                        <option value="CUSTOM">City / Custom Location</option>
+                    </optgroup>
+                </select>
+                <input type="text" id="pFromCustom" class="custom-input" placeholder="Enter custom pickup address">
+            </div>
+
+            <div class="input-group">
+                <label>Drop Location / Airport</label>
+                <select id="pTo" onchange="toggleCustomInput('pTo', 'pToCustom')">
+                    <option value="">-- Select Airport or Location --</option>
+                    <optgroup label="Telangana Airports">
+                        <option value="RGIA - Hyderabad (HYD)">Rajiv Gandhi Intl Airport (HYD) - Hyderabad</option>
+                        <option value="Begumpet Airport - Hyderabad">Begumpet Airport - Hyderabad</option>
+                        <option value="Warangal Airport (Mamnoor)">Warangal Airport (Mamnoor)</option>
+                    </optgroup>
+                    <optgroup label="Andhra Pradesh Airports">
+                        <option value="Visakhapatnam Intl Airport (VTZ)">Visakhapatnam Intl Airport (VTZ)</option>
+                        <option value="Vijayawada Intl Airport (VGA)">Vijayawada Intl Airport (VGA)</option>
+                        <option value="Tirupati Airport (TIR)">Tirupati Airport (TIR)</option>
+                        <option value="Rajahmundry Airport (RJA)">Rajahmundry Airport (RJA)</option>
+                        <option value="Kurnool Airport (KJB)">Kurnool Airport (Orvakal)</option>
+                        <option value="Kadapa Airport (CDP)">Kadapa Airport (CDP)</option>
+                        <option value="Bhogapuram Intl Airport">Bhogapuram Intl Airport (Greenfield)</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                        <option value="CUSTOM">City / Custom Location</option>
+                    </optgroup>
+                </select>
+                <input type="text" id="pToCustom" class="custom-input" placeholder="Enter custom drop address">
+            </div>
+
+            <div class="input-group">
+                <label>Total Fare (₹)</label>
+                <input type="number" id="pFare" placeholder="0.00">
+            </div>
+            
+            <button class="btn btn-gen" onclick="processReceipt()">
+                <i class="fas fa-sync"></i> GENERATE RECEIPT
+            </button>
+            
+            <div class="btn-action-group" id="actionBtnGroup">
+                <button class="btn btn-share" onclick="shareReceipt()">
+                    <i class="fas fa-share-alt"></i> SHARE
+                </button>
+                <button class="btn btn-download" onclick="printReceipt()">
+                    <i class="fas fa-print"></i> PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Receipt Template -->
+        <div id="receipt-preview-wrapper">
+            <p style="color: #666; font-size: 0.8rem;">Preview:</p>
+            <div id="receipt-content">
+                <div class="r-header">
+                    <img src="logo.jpeg" style="width: 50px;" alt="Logo" onerror="this.style.display='none'">
+                    <h2>RUNWAY RIDES</h2>
+                    <p style="font-size: 0.7rem; margin: 0;">Airport Taxi Services</p>
+                </div>
+                <div class="r-line">
+                    <span><strong>No:</strong> <span id="outNo">#1001</span></span>
+                    <span><strong>Date & Time:</strong> <span id="outDate"></span></span>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #eee;">
+                <div class="r-line"><span><strong>Passenger:</strong></span> <span id="outName"></span></div>
+                <div class="r-line"><span><strong>From:</strong></span> <span id="outFrom" style="text-align: right; max-width: 180px;"></span></div>
+                <div class="r-line"><span><strong>To:</strong></span> <span id="outTo" style="text-align: right; max-width: 180px;"></span></div>
+                
+                <div class="r-total">
+                    TOTAL: <span id="outFare"></span>
+                </div>
+
+                <div class="r-footer">
+                    Old Police Station Road, Rudra Colony,<br>
+                    Shamshabad, Hyderabad - 501218<br>
+                    Ph: +91 8186016096<br>
+                    <strong>Thank you for your business!</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let receiptCounter = parseInt(localStorage.getItem('rr_counter')) || 1001;
+
+        window.onload = function() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('pDateTime').value = now.toISOString().slice(0, 16);
+        };
+
+        function toggleCustomInput(selectId, customInputId) {
+            const selectElem = document.getElementById(selectId);
+            const customInput = document.getElementById(customInputId);
+            
+            if (selectElem.value === 'CUSTOM') {
+                customInput.style.display = 'block';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        }
+
+        function processReceipt() {
+            const name = document.getElementById('pName').value;
+            const fare = document.getElementById('pFare').value;
+            const dateTimeVal = document.getElementById('pDateTime').value;
+            
+            if(!name || !fare) {
+                alert("Please fill Name and Fare");
+                return;
+            }
+
+            const fromSelect = document.getElementById('pFrom').value;
+            const fromCustom = document.getElementById('pFromCustom').value;
+            const finalFrom = (fromSelect === 'CUSTOM') ? (fromCustom || "Custom Location") : fromSelect;
+
+            const toSelect = document.getElementById('pTo').value;
+            const toCustom = document.getElementById('pToCustom').value;
+            const finalTo = (toSelect === 'CUSTOM') ? (toCustom || "Custom Location") : toSelect;
+
+            let formattedDateTime = new Date().toLocaleString();
+            if(dateTimeVal) {
+                const dt = new Date(dateTimeVal);
+                formattedDateTime = dt.toLocaleDateString() + ", " + dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            document.getElementById('outName').innerText = name;
+            document.getElementById('outFrom').innerText = finalFrom || "-";
+            document.getElementById('outTo').innerText = finalTo || "-";
+            document.getElementById('outFare').innerText = "₹ " + fare;
+            document.getElementById('outDate').innerText = formattedDateTime;
+            document.getElementById('outNo').innerText = "#" + receiptCounter;
+
+            document.getElementById('receipt-preview-wrapper').style.display = 'block';
+            document.getElementById('actionBtnGroup').style.display = 'flex';
+
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function shareReceipt() {
+            const receiptNo = document.getElementById('outNo').innerText;
+            const dateVal = document.getElementById('outDate').innerText;
+            const passenger = document.getElementById('outName').innerText;
+            const fromLoc = document.getElementById('outFrom').innerText;
+            const toLoc = document.getElementById('outTo').innerText;
+            const totalFare = document.getElementById('outFare').innerText;
+
+            const shareText = 
+`🚖 *RUNWAY RIDES - TAXI RECEIPT*
+----------------------------------
+*Receipt No:* ${receiptNo}
+*Date & Time:* ${dateVal}
+*Passenger:* ${passenger}
+*From:* ${fromLoc}
+*To:* ${toLoc}
+----------------------------------
+*TOTAL FARE:* ${totalFare}
+----------------------------------
+Shamshabad, Hyderabad - 501218
+Contact: +91 8186016096
+Thank you for riding with us!`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Taxi Receipt - Runway Rides',
+                    text: shareText
+                }).catch((error) => console.log('Sharing canceled', error));
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        }
+
+        function printReceipt() {
+            window.print();
+            receiptCounter++;
+            localStorage.setItem('rr_counter', receiptCounter);
+        }
+    </script>
+</body>
+</html>
