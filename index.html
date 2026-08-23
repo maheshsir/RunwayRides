@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Runway Rides App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Font for fancy cursive signature -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
     <style>
         :root { --primary: #1a3a6d; }
         body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 20px; }
@@ -35,10 +37,19 @@
         #receipt-preview-wrapper { display: none; text-align: center; margin-top: 20px; }
         #receipt-content { background: white; padding: 20px; width: 320px; margin: 0 auto; border: 1px solid #eee; box-sizing: border-box; }
         .r-header { text-align: center; margin-bottom: 15px; }
-        .r-header h2 { margin: 5px 0; font-size: 1.2rem; color: var(--primary); }
+        .r-header h2 { margin: 5px 0 2px 0; font-size: 1.2rem; color: var(--primary); }
+        .r-gstin { font-size: 0.7rem; color: #555; margin-bottom: 5px; font-weight: bold; }
         .r-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; text-align: left; }
         .r-total { background: #f8f9fa; padding: 10px; margin-top: 15px; font-weight: bold; font-size: 1.1rem; text-align: center; border: 1px solid #ddd; }
-        .r-footer { font-size: 0.7rem; text-align: center; margin-top: 20px; color: #777; line-height: 1.4; }
+        
+        /* Signature & Stamp Styling */
+        .r-signature-container { margin-top: 20px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+        .r-stamp-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: -5px; }
+        .r-stamp-logo { width: 28px; height: 28px; border-radius: 50%; opacity: 0.85; }
+        .fancy-signature { font-family: 'Great Vibes', cursive; font-size: 1.8rem; color: #1a3a6d; transform: rotate(-5deg); display: inline-block; padding-right: 10px; }
+        .r-sign-label { font-size: 0.65rem; color: #555; border-top: 1px dashed #aaa; padding-top: 2px; width: 130px; text-align: center; font-weight: bold; }
+
+        .r-footer { font-size: 0.7rem; text-align: center; margin-top: 15px; color: #777; line-height: 1.4; }
 
         /* Print formatting */
         @media print {
@@ -63,6 +74,11 @@
             <div class="input-group">
                 <label>Passenger Name</label>
                 <input type="text" id="pName" placeholder="Enter name">
+            </div>
+
+            <div class="input-group">
+                <label>Customer Mobile Number</label>
+                <input type="tel" id="pMobile" placeholder="Enter 10-digit mobile number">
             </div>
             
             <div class="input-group">
@@ -146,7 +162,8 @@
                 <div class="r-header">
                     <img src="logo.jpeg" style="width: 50px;" alt="Logo" onerror="this.style.display='none'">
                     <h2>RUNWAY RIDES</h2>
-                    <p style="font-size: 0.7rem; margin: 0;">Airport Taxi Services</p>
+                    <p style="font-size: 0.7rem; margin: 0 0 2px 0;">Airport Taxi Services</p>
+                    <div class="r-gstin">GSTIN: 36AAJCR6508E1ZC</div>
                 </div>
                 <div class="r-line">
                     <span><strong>No:</strong> <span id="outNo">#1001</span></span>
@@ -154,6 +171,7 @@
                 </div>
                 <hr style="border: 0; border-top: 1px solid #eee;">
                 <div class="r-line"><span><strong>Passenger:</strong></span> <span id="outName"></span></div>
+                <div class="r-line"><span><strong>Mobile:</strong></span> <span id="outMobile"></span></div>
                 <div class="r-line"><span><strong>From:</strong></span> <span id="outFrom" style="text-align: right; max-width: 180px;"></span></div>
                 <div class="r-line"><span><strong>To:</strong></span> <span id="outTo" style="text-align: right; max-width: 180px;"></span></div>
                 
@@ -161,17 +179,27 @@
                     TOTAL: <span id="outFare"></span>
                 </div>
 
+                <!-- Signature and Stamp Block -->
+                <div class="r-signature-container">
+                    <div class="r-stamp-wrapper">
+                        <img src="logo.jpeg" class="r-stamp-logo" alt="Stamp Logo" onerror="this.style.display='none'">
+                        <span class="fancy-signature">Guranna</span>
+                    </div>
+                    <div class="r-sign-label">Authorised Signatory</div>
+                </div>
+
                 <div class="r-footer">
                     Old Police Station Road, Rudra Colony,<br>
                     Shamshabad, Hyderabad - 501218<br>
                     Ph: +91 8186016096<br>
+                    Email: Runwayrides26@gmail.com<br>
                     <strong>Thank you for your business!</strong>
                 </div>
             </div>
         </div>
     </div>
 
- <script>
+<script>
     let receiptCounter = parseInt(localStorage.getItem('rr_counter')) || 1001;
 
     window.onload = function() {
@@ -195,6 +223,7 @@
 
     function processReceipt() {
         const name = document.getElementById('pName').value;
+        const mobile = document.getElementById('pMobile').value;
         const fare = document.getElementById('pFare').value;
         const dateTimeVal = document.getElementById('pDateTime').value;
         
@@ -219,6 +248,7 @@
 
         // Set values on receipt
         document.getElementById('outName').innerText = name;
+        document.getElementById('outMobile').innerText = mobile || "-";
         document.getElementById('outFrom').innerText = finalFrom || "-";
         document.getElementById('outTo').innerText = finalTo || "-";
         document.getElementById('outFare').innerText = "₹ " + fare;
@@ -240,23 +270,28 @@
         const receiptNo = document.getElementById('outNo').innerText;
         const dateVal = document.getElementById('outDate').innerText;
         const passenger = document.getElementById('outName').innerText;
+        const mobileVal = document.getElementById('outMobile').innerText;
         const fromLoc = document.getElementById('outFrom').innerText;
         const toLoc = document.getElementById('outTo').innerText;
         const totalFare = document.getElementById('outFare').innerText;
 
         const shareText = 
 `🚖 *RUNWAY RIDES - TAXI RECEIPT*
+*GSTIN:* 36AAJCR6508E1ZC
 ----------------------------------
 *Receipt No:* ${receiptNo}
 *Date & Time:* ${dateVal}
 *Passenger:* ${passenger}
+*Mobile:* ${mobileVal}
 *From:* ${fromLoc}
 *To:* ${toLoc}
 ----------------------------------
 *TOTAL FARE:* ${totalFare}
 ----------------------------------
+Authorised Signatory: Guranna
 Shamshabad, Hyderabad - 501218
 Contact: +91 8186016096
+Email: Runwayrides26@gmail.com
 Thank you for riding with us!`;
 
         if (navigator.share) {
