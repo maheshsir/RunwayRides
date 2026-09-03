@@ -5,142 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Runway Rides App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Google Font for fancy cursive signature -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
     <style>
         :root { --primary: #1a3a6d; }
-        body { font-family: sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f0f2f5; padding-bottom: 20px; color: #333; }
         
         /* Mobile Header */
         .app-header { background: var(--primary); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .app-header img { width: 50px; border-radius: 50%; vertical-align: middle; }
         
-        .container { padding: 15px; }
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
         .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
         
         h3 { margin-top: 0; color: var(--primary); font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .full-width { grid-column: span 2; }
+        
         .input-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.8rem; color: #666; margin-bottom: 4px; font-weight: bold; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; outline: none; background: white; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; outline: none; background: white; }
         input:focus, select:focus { border-color: var(--primary); }
 
         .custom-input { display: none; margin-top: 8px; }
 
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-gen { background: var(--primary); color: white; }
         .btn-action-group { display: none; gap: 10px; margin-top: 10px; }
         .btn-share { background: #25D366; color: white; flex: 1; }
         .btn-download { background: #27ae60; color: white; flex: 1; }
 
-        /* Receipt View */
-        #receipt-preview-wrapper { display: none; text-align: center; margin-top: 20px; }
-        #receipt-content { background: white; padding: 20px; width: 320px; margin: 0 auto; border: 1px solid #eee; box-sizing: border-box; }
-        .r-header { text-align: center; margin-bottom: 15px; }
-        .r-header h2 { margin: 5px 0 2px 0; font-size: 1.2rem; color: var(--primary); }
-        .r-gstin { font-size: 0.7rem; color: #555; margin-bottom: 5px; font-weight: bold; }
-        .r-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; text-align: left; }
-        .r-total { background: #f8f9fa; padding: 10px; margin-top: 15px; font-weight: bold; font-size: 1.1rem; text-align: center; border: 1px solid #ddd; }
+        /* Receipt View Exact Replica */
+        #receipt-preview-wrapper { display: none; margin-top: 20px; }
+        #receipt-content { background: white; padding: 30px; width: 100%; max-width: 650px; margin: 0 auto; border: 1px solid #e0e0e0; box-sizing: border-box; font-size: 0.82rem; }
         
-        /* Signature & Stamp Styling */
-        .r-signature-container { margin-top: 20px; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-        .r-stamp-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: -5px; }
-        .r-stamp-logo { width: 28px; height: 28px; border-radius: 50%; opacity: 0.85; }
-        .fancy-signature { font-family: 'Great Vibes', cursive; font-size: 1.8rem; color: #1a3a6d; transform: rotate(-5deg); display: inline-block; padding-right: 10px; }
-        .r-sign-label { font-size: 0.65rem; color: #555; border-top: 1px dashed #aaa; padding-top: 2px; width: 130px; text-align: center; font-weight: bold; }
+        .inv-top-label { text-align: right; font-size: 0.65rem; color: #777; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
+        .inv-logo-box { width: 140px; }
+        .inv-logo-box img { width: 100%; height: auto; }
+        
+        .inv-company-details { text-align: right; font-size: 0.72rem; color: #444; line-height: 1.3; }
+        .inv-company-details h2 { margin: 0 0 2px 0; color: var(--primary); font-size: 1.2rem; }
 
-        .r-footer { font-size: 0.7rem; text-align: center; margin-top: 15px; color: #777; line-height: 1.4; }
+        .inv-meta-row { display: flex; justify-content: space-between; margin-top: 15px; }
+        .inv-bill-to, .inv-details { line-height: 1.4; }
+        .inv-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 2px; margin-bottom: 5px; color: var(--primary); display: inline-block; }
+        
+        .inv-details { text-align: right; }
 
-        /* Print formatting */
+        .transport-box { background: #fdfdfd; border: 1px solid #e8e8e8; border-radius: 6px; padding: 12px; margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; line-height: 1.4; }
+        .t-label { color: #777; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; }
+        .t-val { font-weight: bold; font-size: 0.85rem; color: #111; margin-bottom: 6px; }
+
+        .inv-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .inv-table th { border-bottom: 1px solid #ccc; text-align: left; padding: 8px 4px; font-size: 0.75rem; color: #666; font-weight: bold; }
+        .inv-table td { padding: 10px 4px; border-bottom: 1px solid #eee; }
+
+        .words-block { border-left: 3px solid var(--primary); padding-left: 8px; margin-top: 15px; }
+        .words-label { font-style: italic; font-weight: bold; font-size: 0.75rem; color: #444; }
+        .words-val { font-style: italic; font-weight: bold; font-size: 0.75rem; color: #666; }
+
+        .bottom-section { display: flex; justify-content: space-between; margin-top: 15px; }
+        .terms-box { font-size: 0.7rem; color: #666; width: 50%; line-height: 1.4; }
+        .totals-box { width: 45%; text-align: right; font-size: 0.8rem; }
+        .tot-row { display: flex; justify-content: space-between; padding: 2px 0; }
+        .tot-row.bold { font-weight: bold; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 4px 0; font-size: 0.9rem; margin: 4px 0; }
+
+        /* Signature and Official Stamp Overlay */
+        .sign-area { margin-top: 30px; text-align: right; position: relative; }
+        .sign-for { font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; }
+        
+        .stamp-and-sig-box {
+            position: relative;
+            height: 70px;
+            width: 220px;
+            margin-left: auto;
+            margin-bottom: 5px;
+        }
+
+        .official-stamp {
+            position: absolute;
+            right: 40px;
+            top: -5px;
+            width: 75px;
+            height: 75px;
+            border: 2px dashed #1a3a6d;
+            border-radius: 50%;
+            text-align: center;
+            color: #1a3a6d;
+            opacity: 0.75;
+            transform: rotate(-12deg);
+        }
+
+        .stamp-inner {
+            width: 65px;
+            height: 65px;
+            border: 1px solid #1a3a6d;
+            border-radius: 50%;
+            margin: 4px auto;
+            padding-top: 8px;
+            box-sizing: border-box;
+        }
+
+        .stamp-text-top { font-size: 5pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stamp-text-mid { font-size: 6.5pt; font-weight: bold; margin: 2px 0; }
+        .stamp-text-bot { font-size: 4.5pt; text-transform: uppercase; }
+
+        .signature-text {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem;
+            color: #1a3a6d;
+            transform: rotate(-6deg);
+            z-index: 2;
+        }
+
+        .sign-label { font-size: 0.7rem; color: #666; border-top: 1px dashed #ccc; display: inline-block; padding-top: 2px; width: 130px; text-align: center; }
+
+        /* Print Settings to remove URL headers & file path footers */
+        @page {
+            size: auto;
+            margin: 10mm;
+        }
+
         @media print {
-            body { background: white; padding: 0; }
-            .app-header, .card, #receipt-preview-wrapper p { display: none !important; }
+            body { background: white; padding: 0; margin: 0; }
+            .app-header, .card, #receipt-preview-wrapper > p { display: none !important; }
             #receipt-preview-wrapper { display: block !important; margin-top: 0; }
-            #receipt-content { border: none; width: 100%; }
+            #receipt-content { border: none; width: 100%; padding: 0; }
         }
     </style>
 </head>
 <body>
 
     <div class="app-header">
-        <img src="logo.jpeg" alt="Logo" onerror="this.style.display='none'">
-        <span style="font-weight: bold; margin-left: 10px; font-size: 1.2rem;">RUNWAY RIDES</span>
+        <span style="font-weight: bold; font-size: 1.2rem;">RUNWAY RIDES</span>
     </div>
 
     <div class="container">
-        <!-- Input Form -->
         <div class="card">
-            <h3>Generate Taxi Receipt</h3>
-            <div class="input-group">
-                <label>Passenger Name</label>
-                <input type="text" id="pName" placeholder="Enter name">
-            </div>
-
-            <div class="input-group">
-                <label>Customer Mobile Number</label>
-                <input type="tel" id="pMobile" placeholder="Enter 10-digit mobile number">
-            </div>
-            
-            <div class="input-group">
-                <label>Ride Date & Time</label>
-                <input type="datetime-local" id="pDateTime">
-            </div>
-
-            <div class="input-group">
-                <label>Pickup Location / Airport</label>
-                <select id="pFrom" onchange="toggleCustomInput('pFrom', 'pFromCustom')">
-                    <option value="">-- Select Airport or Location --</option>
-                    <optgroup label="Telangana Airports">
-                        <option value="RGIA - Hyderabad (HYD)">Rajiv Gandhi Intl Airport (HYD) - Hyderabad</option>
-                        <option value="Begumpet Airport - Hyderabad">Begumpet Airport - Hyderabad</option>
-                        <option value="Warangal Airport (Mamnoor)">Warangal Airport (Mamnoor)</option>
-                    </optgroup>
-                    <optgroup label="Andhra Pradesh Airports">
-                        <option value="Visakhapatnam Intl Airport (VTZ)">Visakhapatnam Intl Airport (VTZ)</option>
-                        <option value="Vijayawada Intl Airport (VGA)">Vijayawada Intl Airport (VGA)</option>
-                        <option value="Tirupati Airport (TIR)">Tirupati Airport (TIR)</option>
-                        <option value="Rajahmundry Airport (RJA)">Rajahmundry Airport (RJA)</option>
-                        <option value="Kurnool Airport (KJB)">Kurnool Airport (Orvakal)</option>
-                        <option value="Kadapa Airport (CDP)">Kadapa Airport (CDP)</option>
-                        <option value="Bhogapuram Intl Airport">Bhogapuram Intl Airport (Greenfield)</option>
-                    </optgroup>
-                    <optgroup label="Other">
+            <h3>Generate Taxi Invoice</h3>
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label>Passenger Name</label>
+                    <input type="text" id="pName" placeholder="Customer Name">
+                </div>
+                <div class="input-group">
+                    <label>Customer Mobile</label>
+                    <input type="tel" id="pMobile" placeholder="10-digit Mobile">
+                </div>
+                <div class="input-group">
+                    <label>Ride Date & Time</label>
+                    <input type="datetime-local" id="pDateTime">
+                </div>
+                
+                <div class="input-group full-width">
+                    <label>Pickup Location</label>
+                    <select id="pFrom" onchange="toggleCustomInput('pFrom', 'pFromCustom')">
+                        <option value="RGI AIRPORT">RGI AIRPORT</option>
+                        <option value="Begumpet Airport">Begumpet Airport</option>
                         <option value="CUSTOM">City / Custom Location</option>
-                    </optgroup>
-                </select>
-                <input type="text" id="pFromCustom" class="custom-input" placeholder="Enter custom pickup address">
-            </div>
+                    </select>
+                    <input type="text" id="pFromCustom" class="custom-input" placeholder="Enter custom pickup">
+                </div>
 
-            <div class="input-group">
-                <label>Drop Location / Airport</label>
-                <select id="pTo" onchange="toggleCustomInput('pTo', 'pToCustom')">
-                    <option value="">-- Select Airport or Location --</option>
-                    <optgroup label="Telangana Airports">
-                        <option value="RGIA - Hyderabad (HYD)">Rajiv Gandhi Intl Airport (HYD) - Hyderabad</option>
-                        <option value="Begumpet Airport - Hyderabad">Begumpet Airport - Hyderabad</option>
-                        <option value="Warangal Airport (Mamnoor)">Warangal Airport (Mamnoor)</option>
-                    </optgroup>
-                    <optgroup label="Andhra Pradesh Airports">
-                        <option value="Visakhapatnam Intl Airport (VTZ)">Visakhapatnam Intl Airport (VTZ)</option>
-                        <option value="Vijayawada Intl Airport (VGA)">Vijayawada Intl Airport (VGA)</option>
-                        <option value="Tirupati Airport (TIR)">Tirupati Airport (TIR)</option>
-                        <option value="Rajahmundry Airport (RJA)">Rajahmundry Airport (RJA)</option>
-                        <option value="Kurnool Airport (KJB)">Kurnool Airport (Orvakal)</option>
-                        <option value="Kadapa Airport (CDP)">Kadapa Airport (CDP)</option>
-                        <option value="Bhogapuram Intl Airport">Bhogapuram Intl Airport (Greenfield)</option>
-                    </optgroup>
-                    <optgroup label="Other">
+                <div class="input-group full-width">
+                    <label>Drop Location</label>
+                    <select id="pTo" onchange="toggleCustomInput('pTo', 'pToCustom')">
+                        <option value="HI-TECH CITY">HI-TECH CITY</option>
+                        <option value="Gachibowli">Gachibowli</option>
+                        <option value="Secunderabad">Secunderabad</option>
                         <option value="CUSTOM">City / Custom Location</option>
-                    </optgroup>
-                </select>
-                <input type="text" id="pToCustom" class="custom-input" placeholder="Enter custom drop address">
+                    </select>
+                    <input type="text" id="pToCustom" class="custom-input" placeholder="Enter custom drop">
+                </div>
+
+                <div class="input-group">
+                    <label>Driver Name</label>
+                    <input type="text" id="pDriver" value="Divakar">
+                </div>
+                <div class="input-group">
+                    <label>Driver Phone</label>
+                    <input type="tel" id="pDriverPhone" value="7995718085">
+                </div>
+                <div class="input-group">
+                    <label>Vehicle Number</label>
+                    <input type="text" id="pVehNo" value="TG07T3797">
+                </div>
+                <div class="input-group">
+                    <label>Vehicle Type</label>
+                    <select id="pVehType">
+                        <option value="SEDAN">SEDAN</option>
+                        <option value="SUV">SUV</option>
+                        <option value="HATCHBACK">HATCHBACK</option>
+                    </select>
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Total Fare (₹)</label>
+                    <input type="number" id="pFare" value="1550" placeholder="0.00">
+                </div>
             </div>
 
-            <div class="input-group">
-                <label>Total Fare (₹)</label>
-                <input type="number" id="pFare" placeholder="0.00">
-            </div>
-            
             <button class="btn btn-gen" onclick="processReceipt()">
                 <i class="fas fa-sync"></i> GENERATE RECEIPT
             </button>
@@ -150,58 +217,124 @@
                     <i class="fas fa-share-alt"></i> SHARE
                 </button>
                 <button class="btn btn-download" onclick="printReceipt()">
-                    <i class="fas fa-print"></i> PDF
+                    <i class="fas fa-print"></i> PRINT / PDF
                 </button>
             </div>
         </div>
 
-        <!-- Receipt Template -->
         <div id="receipt-preview-wrapper">
-            <p style="color: #666; font-size: 0.8rem;">Preview:</p>
+            <p style="color: #666; font-size: 0.8rem; text-align: center;">Preview:</p>
             <div id="receipt-content">
-                <div class="r-header">
-                    <img src="logo.jpeg" style="width: 50px;" alt="Logo" onerror="this.style.display='none'">
-                    <h2>RUNWAY RIDES</h2>
-                    <p style="font-size: 0.7rem; margin: 0 0 2px 0;">Airport Taxi Services</p>
-                    <div class="r-gstin">GSTIN: 36AAJCR6508E1ZC</div>
-                </div>
-                <div class="r-line">
-                    <span><strong>No:</strong> <span id="outNo">#1001</span></span>
-                    <span><strong>Date & Time:</strong> <span id="outDate"></span></span>
-                </div>
-                <hr style="border: 0; border-top: 1px solid #eee;">
-                <div class="r-line"><span><strong>Passenger:</strong></span> <span id="outName"></span></div>
-                <div class="r-line"><span><strong>Mobile:</strong></span> <span id="outMobile"></span></div>
-                <div class="r-line"><span><strong>From:</strong></span> <span id="outFrom" style="text-align: right; max-width: 180px;"></span></div>
-                <div class="r-line"><span><strong>To:</strong></span> <span id="outTo" style="text-align: right; max-width: 180px;"></span></div>
-                
-                <div class="r-total">
-                    TOTAL: <span id="outFare"></span>
-                </div>
-
-                <!-- Signature and Stamp Block -->
-                <div class="r-signature-container">
-                    <div class="r-stamp-wrapper">
-                        <img src="logo.jpeg" class="r-stamp-logo" alt="Stamp Logo" onerror="this.style.display='none'">
-                        <span class="fancy-signature">Guranna</span>
+                <div class="inv-top-label">Original For Recipient</div>
+                <div class="inv-header">
+                    <div class="inv-logo-box">
+                        <img src="logo.jpeg" alt="Logo" onerror="this.src='https://via.placeholder.com/140x60?text=RUNWAY+RIDES'">
                     </div>
-                    <div class="r-sign-label">Authorised Signatory</div>
+                    <div class="inv-company-details">
+                        <h2>RUNWAY RIDES</h2>
+                        <div>Airport Taxi Service</div>
+                        <div>GSTIN: 36AAJCR6508E1ZC</div>
+                        <div>State: 36-Telangana</div>
+                        <div>Old Police Station Road, Rudra Colony, Shamshabad, Hyderabad - 501218</div>
+                        <div>Phone: +91 8186016096 | Email: Runwayrides26@gmail.com</div>
+                    </div>
                 </div>
 
-                <div class="r-footer">
-                    Old Police Station Road, Rudra Colony,<br>
-                    Shamshabad, Hyderabad - 501218<br>
-                    Ph: +91 8186016096<br>
-                    Email: Runwayrides26@gmail.com<br>
-                    <strong>Thank you for your business!</strong>
+                <div class="inv-meta-row">
+                    <div class="inv-bill-to">
+                        <div class="inv-title">Bill To:</div>
+                        <div><strong id="outName">Guranna</strong></div>
+                        <div>Contact No.: <span id="outMobile">8186016096</span></div>
+                    </div>
+                    <div class="inv-details">
+                        <div class="inv-title">Invoice Details:</div>
+                        <div>Invoice No.: <strong id="outNo">RR-20260808-5671</strong></div>
+                        <div>Date: <span id="outDate">08-08-2026</span></div>
+                        <div>Time: <span id="outTime">04:37 PM</span></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <div class="inv-title">Transportation Details</div>
+                    <div class="transport-box">
+                        <div>
+                            <div class="t-label">Driver Name</div>
+                            <div class="t-val" id="outDriver">Divakar</div>
+                            <div class="t-label">Phone Number</div>
+                            <div class="t-val" id="outDriverPhone">7995718085</div>
+                            <div class="t-label">Pickup Location</div>
+                            <div class="t-val" id="outFrom">RGI AIRPORT</div>
+                            <div class="t-label">Drop Location</div>
+                            <div class="t-val" id="outTo">HI-TECH CITY</div>
+                        </div>
+                        <div>
+                            <div class="t-label">Vehicle Number</div>
+                            <div class="t-val" id="outVehNo">TG07T3797</div>
+                            <div class="t-label">Vehicle Type</div>
+                            <div class="t-val" id="outVehType">SEDAN</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="inv-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th style="text-align: right;">Base Price</th>
+                            <th style="text-align: right;">GST (5%)</th>
+                            <th style="text-align: right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Airport Taxi Service</td>
+                            <td style="text-align: right;" id="outBase">₹1476.19</td>
+                            <td style="text-align: right;" id="outGst">₹73.81</td>
+                            <td style="text-align: right;" id="outTableTotal">₹1550.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="words-block">
+                    <div class="words-label">Invoice Amount in Words:</div>
+                    <div class="words-val" id="outWords">One Thousand Five Hundred and Fifty Rupees Only</div>
+                </div>
+
+                <div class="bottom-section">
+                    <div class="terms-box">
+                        <strong>Terms and Conditions:</strong><br>
+                        Thank you for doing business with us.<br>
+                        * Your Comfort, Our Priority *
+                    </div>
+                    <div class="totals-box">
+                        <div class="tot-row"><span>Sub Total:</span><span id="outSubTotal">₹1476.19</span></div>
+                        <div class="tot-row"><span>SGST (2.5%):</span><span id="outSgst">₹36.90</span></div>
+                        <div class="tot-row"><span>CGST (2.5%):</span><span id="outCgst">₹36.90</span></div>
+                        <div class="tot-row bold"><span>Total:</span><span id="outTotal">₹1550.00</span></div>
+                        <div class="tot-row"><span>Received:</span><span id="outReceived">₹1550.00</span></div>
+                        <div class="tot-row"><span>Balance:</span><span>₹0.00</span></div>
+                    </div>
+                </div>
+
+                <div class="sign-area">
+                    <div class="sign-for">For: <strong>RUNWAY RIDES</strong></div>
+                    <div class="stamp-and-sig-box">
+                        <div class="official-stamp">
+                            <div class="stamp-inner">
+                                <div class="stamp-text-top">RUNWAY RIDES</div>
+                                <div class="stamp-text-mid">&#9733; PAID &#9733;</div>
+                                <div class="stamp-text-bot">HYDERABAD</div>
+                            </div>
+                        </div>
+                        <span class="signature-text">Guranna</span>
+                    </div>
+                    <div class="sign-label">Authorized Signatory</div>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-    let receiptCounter = parseInt(localStorage.getItem('rr_counter')) || 1001;
-
     window.onload = function() {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -211,7 +344,6 @@
     function toggleCustomInput(selectId, customInputId) {
         const selectElem = document.getElementById(selectId);
         const customInput = document.getElementById(customInputId);
-        
         if (selectElem.value === 'CUSTOM') {
             customInput.style.display = 'block';
             customInput.focus();
@@ -221,16 +353,27 @@
         }
     }
 
+    function numberToWords(num) {
+        const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+        const b = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+        if ((num = num.toString()).length > 9) return 'overflow';
+        let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return ''; 
+        let str = '';
+        str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+        str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+        str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+        str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+        str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) : '';
+        return str.trim() + ' Rupees Only';
+    }
+
     function processReceipt() {
-        const name = document.getElementById('pName').value;
-        const mobile = document.getElementById('pMobile').value;
-        const fare = document.getElementById('pFare').value;
+        const name = document.getElementById('pName').value || "Guranna";
+        const mobile = document.getElementById('pMobile').value || "8186016096";
+        const totalFare = parseFloat(document.getElementById('pFare').value) || 0;
         const dateTimeVal = document.getElementById('pDateTime').value;
-        
-        if(!name || !fare) {
-            alert("Please fill Name and Fare");
-            return;
-        }
 
         const fromSelect = document.getElementById('pFrom').value;
         const fromCustom = document.getElementById('pFromCustom').value;
@@ -240,68 +383,57 @@
         const toCustom = document.getElementById('pToCustom').value;
         const finalTo = (toSelect === 'CUSTOM') ? (toCustom || "Custom Location") : toSelect;
 
-        let formattedDateTime = new Date().toLocaleString();
+        const basePrice = (totalFare / 1.05);
+        const gstAmount = totalFare - basePrice;
+        const halfGst = gstAmount / 2;
+
+        let dateStr = "08-08-2026", timeStr = "04:37 PM";
         if(dateTimeVal) {
             const dt = new Date(dateTimeVal);
-            formattedDateTime = dt.toLocaleDateString() + ", " + dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            dateStr = dt.toLocaleDateString('en-GB').replace(/\//g, '-');
+            timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
         }
 
-        // Set values on receipt
-        document.getElementById('outName').innerText = name;
-        document.getElementById('outMobile').innerText = mobile || "-";
-        document.getElementById('outFrom').innerText = finalFrom || "-";
-        document.getElementById('outTo').innerText = finalTo || "-";
-        document.getElementById('outFare').innerText = "₹ " + fare;
-        document.getElementById('outDate').innerText = formattedDateTime;
-        document.getElementById('outNo').innerText = "#" + receiptCounter;
+        const randNo = Math.floor(1000 + Math.random() * 9000);
+        const cleanDate = dateStr.replace(/-/g, '');
+        document.getElementById('outNo').innerText = `RR-${cleanDate}-${randNo}`;
 
-        // Display receipt preview and buttons
+        document.getElementById('outName').innerText = name;
+        document.getElementById('outMobile').innerText = mobile;
+        document.getElementById('outDate').innerText = dateStr;
+        document.getElementById('outTime').innerText = timeStr;
+
+        document.getElementById('outDriver').innerText = document.getElementById('pDriver').value;
+        document.getElementById('outDriverPhone').innerText = document.getElementById('pDriverPhone').value;
+        document.getElementById('outFrom').innerText = finalFrom;
+        document.getElementById('outTo').innerText = finalTo;
+        document.getElementById('outVehNo').innerText = document.getElementById('pVehNo').value;
+        document.getElementById('outVehType').innerText = document.getElementById('pVehType').value;
+
+        document.getElementById('outBase').innerText = '₹' + basePrice.toFixed(2);
+        document.getElementById('outGst').innerText = '₹' + gstAmount.toFixed(2);
+        document.getElementById('outTableTotal').innerText = '₹' + totalFare.toFixed(2);
+
+        document.getElementById('outSubTotal').innerText = '₹' + basePrice.toFixed(2);
+        document.getElementById('outSgst').innerText = '₹' + halfGst.toFixed(2);
+        document.getElementById('outCgst').innerText = '₹' + halfGst.toFixed(2);
+        document.getElementById('outTotal').innerText = '₹' + totalFare.toFixed(2);
+        document.getElementById('outReceived').innerText = '₹' + totalFare.toFixed(2);
+
+        document.getElementById('outWords').innerText = numberToWords(Math.round(totalFare));
+
         document.getElementById('receipt-preview-wrapper').style.display = 'block';
         document.getElementById('actionBtnGroup').style.display = 'flex';
-
-        // INCREMENT AND SAVE COUNTER NOW
-        receiptCounter++;
-        localStorage.setItem('rr_counter', receiptCounter);
 
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     function shareReceipt() {
-        const receiptNo = document.getElementById('outNo').innerText;
-        const dateVal = document.getElementById('outDate').innerText;
-        const passenger = document.getElementById('outName').innerText;
-        const mobileVal = document.getElementById('outMobile').innerText;
-        const fromLoc = document.getElementById('outFrom').innerText;
-        const toLoc = document.getElementById('outTo').innerText;
-        const totalFare = document.getElementById('outFare').innerText;
-
-        const shareText = 
-`🚖 *RUNWAY RIDES - TAXI RECEIPT*
-*GSTIN:* 36AAJCR6508E1ZC
-----------------------------------
-*Receipt No:* ${receiptNo}
-*Date & Time:* ${dateVal}
-*Passenger:* ${passenger}
-*Mobile:* ${mobileVal}
-*From:* ${fromLoc}
-*To:* ${toLoc}
-----------------------------------
-*TOTAL FARE:* ${totalFare}
-----------------------------------
-Authorised Signatory: Guranna
-Shamshabad, Hyderabad - 501218
-Contact: +91 8186016096
-Email: Runwayrides26@gmail.com
-Thank you for riding with us!`;
-
+        const shareText = `🚖 *RUNWAY RIDES INVOICE*\nInvoice No: ${document.getElementById('outNo').innerText}\nTotal: ${document.getElementById('outTotal').innerText}\nThank you for riding with us!`;
         if (navigator.share) {
-            navigator.share({
-                title: 'Taxi Receipt - Runway Rides',
-                text: shareText
-            }).catch((error) => console.log('Sharing canceled', error));
+            navigator.share({ title: 'Tax Invoice', text: shareText });
         } else {
-            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-            window.open(whatsappUrl, '_blank');
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
         }
     }
 
