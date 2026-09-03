@@ -163,9 +163,26 @@
                 <div class="input-group full-width">
                     <label>Pickup Location</label>
                     <select id="pFrom" onchange="toggleCustomInput('pFrom', 'pFromCustom')">
-                        <option value="RGI AIRPORT">RGI AIRPORT</option>
-                        <option value="Begumpet Airport">Begumpet Airport</option>
-                        <option value="CUSTOM">City / Custom Location</option>
+                        <optgroup label="Telangana Airports">
+                            <option value="RGI AIRPORT (HYD)">RGI Airport, Shamshabad (HYD)</option>
+                            <option value="Begumpet Airport">Begumpet Airport (HYD)</option>
+                            <option value="Warangal Airport (Mamnoor)">Warangal Airport (Mamnoor)</option>
+                            <option value="Ramagundam Airport">Ramagundam Airport</option>
+                        </optgroup>
+                        <optgroup label="Andhra Pradesh Airports">
+                            <option value="Vijayawada Airport (VGA)">Vijayawada Airport (VGA)</option>
+                            <option value="Visakhapatnam Airport (VTZ)">Visakhapatnam Airport (VTZ)</option>
+                            <option value="Bhogapuram Airport (Vizag)">Bhogapuram Int'l Airport (Vizag)</option>
+                            <option value="Tirupati Airport (TIR)">Tirupati Airport (TIR)</option>
+                            <option value="Rajahmundry Airport (RJA)">Rajahmundry Airport (RJA)</option>
+                            <option value="Kurnool Airport (KJB)">Kurnool Airport (Orvakal)</option>
+                            <option value="Kadapa Airport (CDP)">Kadapa Airport (CDP)</option>
+                            <option value="Donakonda Airport">Donakonda Airport</option>
+                            <option value="Puttaparthi Airport">Puttaparthi Airport</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                            <option value="CUSTOM">City / Custom Location</option>
+                        </optgroup>
                     </select>
                     <input type="text" id="pFromCustom" class="custom-input" placeholder="Enter custom pickup">
                 </div>
@@ -173,10 +190,31 @@
                 <div class="input-group full-width">
                     <label>Drop Location</label>
                     <select id="pTo" onchange="toggleCustomInput('pTo', 'pToCustom')">
-                        <option value="HI-TECH CITY">HI-TECH CITY</option>
-                        <option value="Gachibowli">Gachibowli</option>
-                        <option value="Secunderabad">Secunderabad</option>
-                        <option value="CUSTOM">City / Custom Location</option>
+                        <optgroup label="Popular Cities / Hubs">
+                            <option value="HI-TECH CITY">HI-TECH CITY</option>
+                            <option value="Gachibowli">Gachibowli</option>
+                            <option value="Secunderabad">Secunderabad</option>
+                        </optgroup>
+                        <optgroup label="Telangana Airports">
+                            <option value="RGI AIRPORT (HYD)">RGI Airport, Shamshabad (HYD)</option>
+                            <option value="Begumpet Airport">Begumpet Airport (HYD)</option>
+                            <option value="Warangal Airport (Mamnoor)">Warangal Airport (Mamnoor)</option>
+                            <option value="Ramagundam Airport">Ramagundam Airport</option>
+                        </optgroup>
+                        <optgroup label="Andhra Pradesh Airports">
+                            <option value="Vijayawada Airport (VGA)">Vijayawada Airport (VGA)</option>
+                            <option value="Visakhapatnam Airport (VTZ)">Visakhapatnam Airport (VTZ)</option>
+                            <option value="Bhogapuram Airport (Vizag)">Bhogapuram Int'l Airport (Vizag)</option>
+                            <option value="Tirupati Airport (TIR)">Tirupati Airport (TIR)</option>
+                            <option value="Rajahmundry Airport (RJA)">Rajahmundry Airport (RJA)</option>
+                            <option value="Kurnool Airport (KJB)">Kurnool Airport (Orvakal)</option>
+                            <option value="Kadapa Airport (CDP)">Kadapa Airport (CDP)</option>
+                            <option value="Donakonda Airport">Donakonda Airport</option>
+                            <option value="Puttaparthi Airport">Puttaparthi Airport</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                            <option value="CUSTOM">City / Custom Location</option>
+                        </optgroup>
                     </select>
                     <input type="text" id="pToCustom" class="custom-input" placeholder="Enter custom drop">
                 </div>
@@ -263,7 +301,7 @@
                             <div class="t-label">Phone Number</div>
                             <div class="t-val" id="outDriverPhone">7995718085</div>
                             <div class="t-label">Pickup Location</div>
-                            <div class="t-val" id="outFrom">RGI AIRPORT</div>
+                            <div class="t-val" id="outFrom">RGI AIRPORT (HYD)</div>
                             <div class="t-label">Drop Location</div>
                             <div class="t-val" id="outTo">HI-TECH CITY</div>
                         </div>
