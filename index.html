@@ -148,11 +148,11 @@
             <h3>Generate Taxi Invoice</h3>
             <div class="form-grid">
                 <div class="input-group full-width">
-                    <label>Passenger Name</label>
+                    <label>Passenger Name *</label>
                     <input type="text" id="pName" placeholder="Customer Name">
                 </div>
                 <div class="input-group">
-                    <label>Customer Mobile</label>
+                    <label>Customer Mobile *</label>
                     <input type="tel" id="pMobile" placeholder="10-digit Mobile">
                 </div>
                 <div class="input-group">
@@ -422,8 +422,25 @@
     }
 
     function processReceipt() {
-        const name = document.getElementById('pName').value || "Guranna";
-        const mobile = document.getElementById('pMobile').value || "8186016096";
+        const nameInput = document.getElementById('pName');
+        const mobileInput = document.getElementById('pMobile');
+
+        const name = nameInput.value.trim();
+        const mobile = mobileInput.value.trim();
+
+        // Validation Checks
+        if (!name) {
+            alert('Please enter Passenger Name.');
+            nameInput.focus();
+            return;
+        }
+
+        if (!mobile) {
+            alert('Please enter Customer Mobile number.');
+            mobileInput.focus();
+            return;
+        }
+
         const totalFare = parseFloat(document.getElementById('pFare').value) || 0;
         const dateTimeVal = document.getElementById('pDateTime').value;
 
